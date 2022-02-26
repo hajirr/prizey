@@ -76,7 +76,7 @@ function roll() {
   }
   for (var i = 0; i <= listHadiah.length - 1; i++) {
     $(".prize-pool").append(
-      `<div class="prize-box"><img src="gift.png" alt="gift" /><p>${listHadiah[i]}</p><p>${listPemenang[i]}</p></div>`
+      `<div class="prize-box"><img src="gift.png" alt="gift" /><p>${listHadiah[i]}</p><br/><p class="pemenang">${listPemenang[i]}</p></div>`
     );
   }
 }
