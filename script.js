@@ -9,12 +9,13 @@ let listNip = [];
 let listPemenang = [];
 let isRoll = false;
 let myInterval = null;
-let totalHadiah = 30;
+let totalHadiah = 40;
+let dataPemenang = [];
 
 const initData = () => {
-  for (var i = 0; i <= totalHadiah-1; i++) {
+  for (var i = 0; i <= totalHadiah - 1; i++) {
     $(".prize-pool").append(
-      `<div class="prize-box"><img src="gift.png" alt="gift" /><p>${listHadiah[i]}</p></div>`
+      `<div class="prize-box"><img src="gift.png" alt="gift" /><p>${listHadiah[i].nama_hadiah}</p></div>`
     );
   }
   console.log("init data");
@@ -23,20 +24,43 @@ const getDataKaryawan = async () => {
   const response = await fetch(`http://192.168.1.115:8000/api/karyawans`);
   let data = await response.json();
   data.map(function (e) {
-    listKaryawan.push(e.nama_karyawan);
-    listNip.push(e.nip);
+    listKaryawan.push({ id_karyawan: e.id, nama_karyawan: e.nama_karyawan, nip: e.nip });
   });
-  console.log(data);
+  // console.log(data);
 };
 
 const getDataHadiah = async () => {
   const response = await fetch(`http://192.168.1.115:8000/api/hadiahs`);
   let data = await response.json();
   data.map(function (e) {
-    listHadiah.push(e.nama_hadiah);
+    listHadiah.push({ id_hadiah: e.id, nama_hadiah: e.nama_hadiah });
   });
-  console.log(data);
+  // console.log(data);
   initData();
+};
+
+const postPemenang = async () => {
+  const formData = new FormData();
+  dataPemenang.reverse();
+  for (let index = 0; index < totalHadiah; index++) {
+    formData.append('id_karyawan', dataPemenang[index].karyawan.id_karyawan);
+    formData.append('id_hadiah', dataPemenang[index].hadiah.id_hadiah);
+  }
+
+  const response = await fetch(`http://192.168.1.115:8000/api/pemenang`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: formData,
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      console.log("Success:", formData);
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+    });
 };
 
 getDataHadiah();
@@ -54,7 +78,8 @@ document.getElementById("start").onclick = function () {
       document.getElementById("start").className = "fa fa-play";
       document.getElementById("start").style.backgroundColor = "#4caf50";
       clearInterval(myInterval);
-    }
+      postPemenang();
+  }
     isRoll = !isRoll;
   } else {
     alert("Pemenang harus lebih banyak dari hadiah");
@@ -64,20 +89,18 @@ document.getElementById("start").onclick = function () {
 function roll() {
   listPemenang = [];
   $(".prize-box").remove();
-  listPemenang.push(
-    listKaryawan[Math.floor(Math.random() * listKaryawan.length)]
-  );
-  for (let i = 0; i < listPemenang.length; i++) {
+  for (let i = 0; i < totalHadiah; i++) {
     for (let j = 0; j < listKaryawan.length; j++) {
       const randomNumber = Math.floor(Math.random() * listKaryawan.length);
       if (!listPemenang.includes(listKaryawan[randomNumber])) {
-        listPemenang.push(listKaryawan[randomNumber]);
+        listPemenang.push({karyawan: listKaryawan[randomNumber], hadiah: listHadiah[j]});
       }
     }
+    dataPemenang.push({karyawan: listPemenang[i].karyawan, hadiah: listPemenang[i].hadiah})
   }
   for (var i = 0; i <= totalHadiah - 1; i++) {
     $(".prize-pool").append(
-      `<div class="prize-box"><img src="gift.png" alt="gift" /><p>${listHadiah[i]}</p><br/><p class="pemenang">${listPemenang[i]}</p></div>`
-    );
+      `<div class="prize-box"><img src="gift.png" alt="gift" /><p>${listPemenang[i].hadiah.nama_hadiah}</p><br/><p class="pemenang">${listPemenang[i].karyawan.nama_karyawan} | ${listPemenang[i].karyawan.nip}</p></div>`
+      );
+    }
   }
-}
