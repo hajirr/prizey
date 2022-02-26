@@ -8,10 +8,11 @@ let listKaryawan = [];
 let listNip = [];
 let listPemenang = [];
 let isRoll = false;
-let myInterval = null;  
+let myInterval = null;
+let totalHadiah = 30;
 
 const initData = () => {
-  for (var i = 0; i <= listHadiah.length - 1; i++) {
+  for (var i = 0; i <= totalHadiah-1; i++) {
     $(".prize-pool").append(
       `<div class="prize-box"><img src="gift.png" alt="gift" /><p>${listHadiah[i]}</p></div>`
     );
@@ -42,7 +43,7 @@ getDataHadiah();
 getDataKaryawan();
 
 document.getElementById("start").onclick = function () {
-  if (listPemenang.length - 1 < listKaryawan.length) {
+  if (totalHadiah < listKaryawan.length) {
     if (!isRoll) {
       myInterval = setInterval(roll, 100);
       document.getElementById("start").innerHTML = " Stop";
@@ -74,7 +75,7 @@ function roll() {
       }
     }
   }
-  for (var i = 0; i <= listHadiah.length - 1; i++) {
+  for (var i = 0; i <= totalHadiah - 1; i++) {
     $(".prize-pool").append(
       `<div class="prize-box"><img src="gift.png" alt="gift" /><p>${listHadiah[i]}</p><br/><p class="pemenang">${listPemenang[i]}</p></div>`
     );
