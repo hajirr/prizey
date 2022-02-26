@@ -2,6 +2,7 @@
   font-family: Arial, Helvetica, sans-serif;
   margin: 0;
   padding: 0px;
+  background-color: #ececec;
 }
 
 body {
@@ -12,16 +13,21 @@ body {
 }
 img {
   width: 70px;
+  background-color: white;
 }
+
 button {
   background-color: #4caf50; /* Green */
   border: none;
   color: white;
+  border-radius: 5px;
   padding: 15px 32px;
   text-align: center;
   text-decoration: none;
   display: inline-block;
   font-size: 16px;
+  margin-left: 5px;
+  margin-right: 5px;
 }
 .container {
   width: 100vw;
@@ -33,7 +39,7 @@ button {
 .prize-pool {
   margin-top: 5vh;
   width: 100vw;
-  height: 90vh;
+  height: 100vh;
   display: flex;
   flex-wrap: wrap;
   flex-direction: row;
@@ -46,7 +52,17 @@ button {
 }
 .prize-box {
   width: 10vw;
-  height: fit-content;
+  height: 10vw;
+  margin-left: 5px;
+  padding: 10px;
+  margin-right: 5px;
+  background-color: white;
   justify-content: center;
   text-align: center;
+  box-shadow: 2px 8px 95px -39px rgba(0,0,0,1);
+  border-radius: 10px;
+}
+.prize-box p {
+  background-color: white;
+  font-size: 14px;
 }
