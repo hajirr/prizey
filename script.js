@@ -11,6 +11,7 @@ let dataSession = {};
 let dataPemenang = [];
 let isRoll = false;
 let isLoading = false;
+let isNextSession = false;
 
 const initData = () => {
   for (var i = 0; i <= dataSession.jumlah_hadiah - 1; i++) {
@@ -69,6 +70,14 @@ getDataHadiah();
 getDataRandomKaryawan();
 getDataKaryawan();
 
+const hiddenButton = () => {
+  if (isNextSession) {
+    document.getElementById("start").style.visibility = "hidden";
+  } else {
+    document.getElementById("start").style.visibility = "visible";
+  }
+}
+
 const loadingButton = () => {
   if (isLoading) {
     document.getElementById("start").style.visibility = "hidden";
@@ -102,12 +111,17 @@ const postPemenang = async () => {
       });
   }
   isLoading = false;
+  isNextSession = true;
   loadingButton();
+  hiddenButton();
 };
 
 document.getElementById("next").onclick = function () {
   getDataNext();
   location.reload();
+  isNextSession = false;
+  hiddenButton();
+  
 };
 
 document.getElementById("start").onclick = function () {
