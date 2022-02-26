@@ -4,103 +4,162 @@ const prizeBox = document.getElementsByClassName("prize-box");
 const toAdd = document.createDocumentFragment();
 
 let listHadiah = [];
+let listRandomKaryawan = [];
 let listKaryawan = [];
-let listNip = [];
 let listPemenang = [];
-let isRoll = false;
-let myInterval = null;
-let totalHadiah = 40;
+let dataSession = {};
 let dataPemenang = [];
+let isRoll = false;
+let isLoading = false;
 
 const initData = () => {
-  for (var i = 0; i <= totalHadiah - 1; i++) {
+  for (var i = 0; i <= dataSession.jumlah_hadiah - 1; i++) {
     $(".prize-pool").append(
       `<div class="prize-box"><img src="gift.png" alt="gift" /><p>${listHadiah[i].nama_hadiah}</p></div>`
     );
   }
-  console.log("init data");
 };
+
 const getDataKaryawan = async () => {
   const response = await fetch(`http://192.168.1.115:8000/api/karyawans`);
   let data = await response.json();
   data.map(function (e) {
-    listKaryawan.push({ id_karyawan: e.id, nama_karyawan: e.nama_karyawan, nip: e.nip });
+    listKaryawan.push({
+      id_karyawan: e.id,
+      nama_karyawan: e.nama_karyawan,
+      nama_pt: e.nama_pt,
+    });
   });
-  // console.log(data);
+};
+
+const getDataRandomKaryawan = async () => {
+  const response = await fetch(`http://192.168.1.115:8000/api/random_karyawan`);
+  let data = await response.json();
+  data.map(function (e) {
+    listRandomKaryawan.push({
+      id_karyawan: e.id,
+      nama_karyawan: e.nama_karyawan,
+      nama_pt: e.nama_pt,
+    });
+  });
+};
+
+const getDataSession = async () => {
+  const response = await fetch(`http://192.168.1.115:8000/api/session`);
+  dataSession = await response.json();
+  document.getElementById("session").innerHTML = dataSession.session_name;
+};
+
+const getDataNext = async () => {
+  const response = await fetch(`http://192.168.1.115:8000/api/next`);
+  dataNext = await response.json();
 };
 
 const getDataHadiah = async () => {
+  getDataSession();
   const response = await fetch(`http://192.168.1.115:8000/api/hadiahs`);
   let data = await response.json();
   data.map(function (e) {
     listHadiah.push({ id_hadiah: e.id, nama_hadiah: e.nama_hadiah });
   });
-  // console.log(data);
   initData();
 };
 
-const postPemenang = async () => {
-  const formData = new FormData();
-  dataPemenang.reverse();
-  for (let index = 0; index < totalHadiah; index++) {
-    formData.append('id_karyawan', dataPemenang[index].karyawan.id_karyawan);
-    formData.append('id_hadiah', dataPemenang[index].hadiah.id_hadiah);
-  }
-
-  const response = await fetch(`http://192.168.1.115:8000/api/pemenang`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: formData,
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      console.log("Success:", formData);
-    })
-    .catch((error) => {
-      console.error("Error:", error);
-    });
-};
-
 getDataHadiah();
+getDataRandomKaryawan();
 getDataKaryawan();
 
+const loadingButton = () => {
+  if (isLoading) {
+    document.getElementById("start").style.visibility = "hidden";
+    document.getElementById("next").style.visibility = "hidden";
+    document.getElementById("upload").style.visibility = "visible";
+  } else {
+    document.getElementById("upload").style.visibility = "hidden";
+    document.getElementById("start").style.visibility = "visible";
+    document.getElementById("next").style.visibility = "visible";
+  }
+}
+
+const postPemenang = async () => {
+  isLoading = true;
+  loadingButton();
+  const formData = new FormData();
+  for (let index = 0; index < dataSession.jumlah_hadiah; index++) {
+    formData.append("id_karyawan", listPemenang[index].karyawan.id_karyawan);
+    formData.append("id_hadiah", listPemenang[index].hadiah.id_hadiah);
+    ``;
+    const response = await fetch(`http://192.168.1.115:8000/api/pemenang`, {
+      method: "POST",
+      body: formData,
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Success:", data);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  }
+  isLoading = false;
+  loadingButton();
+};
+
+document.getElementById("next").onclick = function () {
+  getDataNext();
+  location.reload();
+};
+
 document.getElementById("start").onclick = function () {
-  if (totalHadiah < listKaryawan.length) {
+  if (dataSession.jumlah_hadiah <= listRandomKaryawan.length) {
     if (!isRoll) {
       myInterval = setInterval(roll, 100);
-      document.getElementById("start").innerHTML = " Stop";
-      document.getElementById("start").className = "fa fa-stop";
+      document.getElementById("start").innerHTML = "Berhenti";
       document.getElementById("start").style.backgroundColor = "red";
     } else {
-      document.getElementById("start").innerHTML = " Start";
-      document.getElementById("start").className = "fa fa-play";
+      document.getElementById("start").innerHTML = "Mulai";
       document.getElementById("start").style.backgroundColor = "#4caf50";
       clearInterval(myInterval);
+      winner();
       postPemenang();
-  }
+    }
     isRoll = !isRoll;
   } else {
     alert("Pemenang harus lebih banyak dari hadiah");
   }
 };
 
+function winner() {
+  listPemenang = [];
+  $(".prize-box").remove();
+  for (var i = 0; i <= dataSession.jumlah_hadiah - 1; i++) {
+    listPemenang.push({
+      karyawan: listRandomKaryawan[i],
+      hadiah: listHadiah[i],
+    });
+    $(".prize-pool").append(
+      `<div class="prize-box"><img src="gift.png" alt="gift" /><p>${listPemenang[i].hadiah.nama_hadiah}</p><br/><p class="pemenang">${listPemenang[i].karyawan.nama_karyawan}</p><p>${listPemenang[i].karyawan.nama_pt}</p></div>`
+    );
+  }
+}
+
 function roll() {
   listPemenang = [];
   $(".prize-box").remove();
-  for (let i = 0; i < totalHadiah; i++) {
+  for (let i = 0; i < dataSession.jumlah_hadiah; i++) {
     for (let j = 0; j < listKaryawan.length; j++) {
       const randomNumber = Math.floor(Math.random() * listKaryawan.length);
       if (!listPemenang.includes(listKaryawan[randomNumber])) {
-        listPemenang.push({karyawan: listKaryawan[randomNumber], hadiah: listHadiah[j]});
+        listPemenang.push({
+          karyawan: listKaryawan[randomNumber],
+          hadiah: listHadiah[j],
+        });
       }
     }
-    dataPemenang.push({karyawan: listPemenang[i].karyawan, hadiah: listPemenang[i].hadiah})
   }
-  for (var i = 0; i <= totalHadiah - 1; i++) {
+  for (var i = 0; i <= dataSession.jumlah_hadiah - 1; i++) {
     $(".prize-pool").append(
-      `<div class="prize-box"><img src="gift.png" alt="gift" /><p>${listPemenang[i].hadiah.nama_hadiah}</p><br/><p class="pemenang">${listPemenang[i].karyawan.nama_karyawan} | ${listPemenang[i].karyawan.nip}</p></div>`
-      );
-    }
+      `<div class="prize-box"><img src="gift.png" alt="gift" /><p>${listHadiah[i].nama_hadiah}</p><br/><p class="pemenang">${listPemenang[i].karyawan.nama_karyawan} | ${listPemenang[i].karyawan.nama_pt}</p></div>`
+    );
   }
+}

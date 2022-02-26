@@ -67,6 +67,10 @@ button {
   font-size: 10px;
 }
 
+#upload {
+  visibility: hidden;
+}
+
 .pemenang {
   font-weight: bold;
   font-size: 13px;
