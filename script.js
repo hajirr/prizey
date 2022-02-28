@@ -13,16 +13,8 @@ let isRoll = false;
 let isLoading = false;
 let isNextSession = false;
 
-const initData = () => {
-  for (var i = 0; i <= dataSession.jumlah_hadiah - 1; i++) {
-    $(".prize-pool").append(
-      `<div class="prize-box"><img src="gift.png" alt="gift" /><p>${listHadiah[i].nama_hadiah}</p></div>`
-    );
-  }
-};
-
 const getDataKaryawan = async () => {
-  const response = await fetch(`https://undian.artapuri.com/api/karyawans`);
+  const response = await fetch(`http://192.168.1.115:8000/api/karyawans`);
   let data = await response.json();
   data.map(function (e) {
     listKaryawan.push({
@@ -34,9 +26,7 @@ const getDataKaryawan = async () => {
 };
 
 const getDataRandomKaryawan = async () => {
-  const response = await fetch(
-    `https://undian.artapuri.com/api/random_karyawan`
-  );
+  const response = await fetch(`http://192.168.1.115:8000/api/random_karyawan`);
   let data = await response.json();
   data.map(function (e) {
     listRandomKaryawan.push({
@@ -48,26 +38,42 @@ const getDataRandomKaryawan = async () => {
 };
 
 const getDataSession = async () => {
-  const response = await fetch(`https://undian.artapuri.com/api/session`);
+  const response = await fetch(`http://192.168.1.115:8000/api/session`);
   dataSession = await response.json();
-  document.getElementById("session").innerHTML = dataSession.session_name;
+  $("#session").html(dataSession.session_name);
 };
 
 const getDataNext = async () => {
-  const response = await fetch(`https://undian.artapuri.com/api/next`);
+  const response = await fetch(`http://192.168.1.115:8000/api/next`);
   dataNext = await response.json();
 };
 
 const getDataHadiah = async () => {
-    getDataSession();
-    const response = await fetch(`https://undian.artapuri.com/api/hadiahs`);
-    let data = await response.json();
-    data.map(function (e) {
-      listHadiah.push({ id_hadiah: e.id, nama_hadiah: e.nama_hadiah });
-    })
-    initData();
+  getDataSession();
+  const response = await fetch(`http://192.168.1.115:8000/api/hadiahs`);
+  let data = await response.json();
+  data.map(function (e) {
+    listHadiah.push({
+      id_hadiah: e.id,
+      nama_hadiah: e.nama_hadiah,
+      gambar: e.gambar,
+    });
+  });
+  if (dataSession.session_name == "Grandprize") {
+    $(".buttons").append(`<button id="eliminasi">Eliminasi</button>`);
+    for (var i = 0; i <= dataSession.jumlah_hadiah - 1; i++) {
+      $(".prize-pool").append(
+        `<div class="prize-box"><p class="nama_pt">${listHadiah[i].nama_hadiah}</p><img src="http://192.168.1.115:8000${listHadiah[i].gambar}" alt="gift" /></div>`
+      );
+    }
+  } else {
+    for (var i = 0; i <= dataSession.jumlah_hadiah - 1; i++) {
+      $(".prize-pool").append(
+        `<div class="prize-box"><p class='id_hadiah'>${listHadiah[i].id_hadiah}</p></div>`
+      );
+    }
+  }
 };
-
 
 const loadingButton = () => {
   if (isLoading) {
@@ -81,6 +87,25 @@ const loadingButton = () => {
   }
 };
 
+const postEliminasi = async () => {
+  const formData = new FormData();
+  for (let index = 0; index < dataSession.jumlah_hadiah; index++) {
+    formData.append("id_karyawan", listPemenang[index].karyawan.id_karyawan);
+    const response = await fetch(`http://192.168.1.115:8000/api/eliminasi`, {
+      method: "POST",
+      body: formData,
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        alert(data.message);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+    window.location.reload();
+  }
+};
+
 const postPemenang = async () => {
   isLoading = true;
   loadingButton();
@@ -89,7 +114,7 @@ const postPemenang = async () => {
     formData.append("id_karyawan", listPemenang[index].karyawan.id_karyawan);
     formData.append("id_hadiah", listPemenang[index].hadiah.id_hadiah);
     ``;
-    const response = await fetch(`https://undian.artapuri.com/api/pemenang`, {
+    const response = await fetch(`http://192.168.1.115:8000/api/pemenang`, {
       method: "POST",
       body: formData,
     })
@@ -104,41 +129,32 @@ const postPemenang = async () => {
   isLoading = false;
   loadingButton();
   getDataNext();
-  location.reload();
-  location.reload();
-};
-
-document.getElementById("next").onclick = function () {
-  postPemenang();
-};
-
-document.getElementById("start").onclick = function () {
-  if (!isRoll) {
-    listRandomKaryawan = [];
-    getDataRandomKaryawan();
-    myInterval = setInterval(roll, 100);
-    document.getElementById("start").innerHTML = "Berhenti";
-    document.getElementById("start").style.backgroundColor = "red";
-  } else {
-    document.getElementById("start").innerHTML = "Mulai";
-    document.getElementById("start").style.backgroundColor = "#4caf50";
-    clearInterval(myInterval);
-    winner();
-  }
-  isRoll = !isRoll;
+  window.location.reload();
 };
 
 function winner() {
   listPemenang = [];
   $(".prize-box").remove();
-  for (var i = 0; i <= dataSession.jumlah_hadiah - 1; i++) {
-    listPemenang.push({
-      karyawan: listRandomKaryawan[i],
-      hadiah: listHadiah[i],
-    });
-    $(".prize-pool").append(
-      `<div class="prize-box"><img src="gift.png" alt="gift" /><p>${listPemenang[i].hadiah.nama_hadiah}</p><br/><p class="pemenang">${listPemenang[i].karyawan.nama_karyawan}</p><p>${listPemenang[i].karyawan.nama_pt}</p></div>`
-    );
+  if (dataSession.session_name == "Grandprize") {
+    for (var i = 0; i <= dataSession.jumlah_hadiah - 1; i++) {
+      listPemenang.push({
+        karyawan: listRandomKaryawan[i],
+        hadiah: listHadiah[i],
+      });
+      $(".prize-pool").append(
+        `<div class="prize-box"><p class="nama_pt">${listPemenang[i].hadiah.nama_hadiah}</p><img src="http://192.168.1.115:8000${listPemenang[i].hadiah.gambar}" alt="gift" /><p class="pemenang">${listPemenang[i].karyawan.nama_karyawan}</p><p class='nama_pt'>${listPemenang[i].karyawan.nama_pt}</p></div>`
+      );
+    }
+  } else {
+    for (var i = 0; i <= dataSession.jumlah_hadiah - 1; i++) {
+      listPemenang.push({
+        karyawan: listRandomKaryawan[i],
+        hadiah: listHadiah[i],
+      });
+      $(".prize-pool").append(
+        `<div class="prize-box"><p class='id_hadiah'>${listPemenang[i].hadiah.id_hadiah}</p><p class="pemenang">${listPemenang[i].karyawan.nama_karyawan}</p><p class='nama_pt'>${listPemenang[i].karyawan.nama_pt}</p></div>`
+      );
+    }
   }
 }
 
@@ -156,12 +172,44 @@ function roll() {
       }
     }
   }
-  for (var i = 0; i <= dataSession.jumlah_hadiah - 1; i++) {
-    $(".prize-pool").append(
-      `<div class="prize-box"><img src="gift.png" alt="gift" /><p>${listHadiah[i].nama_hadiah}</p><br/><p class="pemenang">${listPemenang[i].karyawan.nama_karyawan}</p><p>${listPemenang[i].karyawan.nama_pt}</p></div>`
-    );
+  if (dataSession.session_name == "Grandprize") {
+    for (var i = 0; i <= dataSession.jumlah_hadiah - 1; i++) {
+      $(".prize-pool").append(
+        `<div class="prize-box"><p class="nama_pt">${listPemenang[i].hadiah.nama_hadiah}</p><img src="http://192.168.1.115:8000${listHadiah[i].gambar}" alt="gift" /><p class="pemenang">${listPemenang[i].karyawan.nama_karyawan}</p><p class='nama_pt'>${listPemenang[i].karyawan.nama_pt}</p></div>`
+      );
+    }
+  } else {
+    for (var i = 0; i <= dataSession.jumlah_hadiah - 1; i++) {
+      $(".prize-pool").append(
+        `<div class="prize-box"><p class='id_hadiah'>${listHadiah[i].id_hadiah}</p><p class="pemenang">${listPemenang[i].karyawan.nama_karyawan}</p><p class='nama_pt'>${listPemenang[i].karyawan.nama_pt}</p></div>`
+      );
+    }
   }
 }
+
+$(".buttons").on("click", "#eliminasi", function () {
+  postEliminasi();
+});
+
+$("#next").click(function () {
+  postPemenang();
+});
+
+$("#start").click(function () {
+  if (!isRoll) {
+    listRandomKaryawan = [];
+    getDataRandomKaryawan();
+    myInterval = setInterval(roll, 100);
+    document.getElementById("start").innerHTML = "Berhenti";
+    document.getElementById("start").style.backgroundColor = "red";
+  } else {
+    document.getElementById("start").innerHTML = "Mulai";
+    document.getElementById("start").style.backgroundColor = "#4caf50";
+    clearInterval(myInterval);
+    winner();
+  }
+  isRoll = !isRoll;
+});
 
 getDataHadiah();
 getDataKaryawan();

@@ -1,26 +1,52 @@
 @media screen and (min-width: 480px) {
-  .prize-box {
-    width: 10vw;
-    height: fit-content;
-    padding: 10px;
-    margin: 10px;
+  img {
+    width: 7vw;
     background-color: white;
+  }
+
+  .prize-box {
+    width: 13vw;
+    height: fit-content;
+    padding: 5px;
+    margin: 5px;
     justify-content: center;
     text-align: center;
     box-shadow: 2px 8px 95px -39px rgba(0, 0, 0, 1);
     border-radius: 10px;
   }
-  img {
-    width: 5vw;
-    background-color: white;
+  button {
+    background-color: #4caf50; /* Green */
+    border: none;
+    color: white;
+    border-radius: 5px;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 5px;
+  }
+
+  .id_hadiah {
+    font-size: 22px;
+    font-weight: bold;
+  }
+
+  .pemenang {
+    font-weight: bold;
+    font-size: 14px;
+    color: #4caf50;
+  }
+  .nama_pt {
+    font-size: 10px;
   }
 }
 @media screen and (min-width: 900px) {
   .prize-box {
-    width: 10vw;
+    width: 15vw;
     height: fit-content;
-    padding: 10px;
-    margin: 10px;
+    padding: 5px;
+    margin: 5px;
     background-color: white;
     justify-content: center;
     text-align: center;
@@ -31,24 +57,62 @@
     width: 4vw;
     background-color: white;
   }
+  .nama_pt {
+    font-size: 15px;
   }
-  @media screen and (min-width: 1200px) {
-    .prize-box {
-      width: 10vw;
-      height: fit-content;
-      padding: 10px;
-      margin: 10px;
-      background-color: white;
-      justify-content: center;
-      text-align: center;
-      box-shadow: 2px 8px 95px -39px rgba(0, 0, 0, 1);
-      border-radius: 10px;
-    }
-    img {
-      width: 3vw;
-      background-color: white;
-    }
-    }
+  
+  .id_hadiah {
+    font-size: 30px;
+    font-weight: bold;
+  }
+
+  .pemenang {
+    font-weight: bold;
+    font-size: 24px;
+    color: #4caf50;
+  }
+}
+@media screen and (min-width: 1200px) {
+  .prize-box {
+    width: 20vw;
+    height: fit-content;
+    padding: 5px;
+    margin: 5px;
+    background-color: white;
+    justify-content: center;
+    text-align: center;
+    box-shadow: 2px 8px 95px -39px rgba(0, 0, 0, 1);
+    border-radius: 10px;
+  }
+  img {
+    width: 20vw;
+    background-color: white;
+  }
+
+  button {
+    background-color: #4caf50; /* Green */
+    border: none;
+    color: white;
+    border-radius: 5px;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 5px;
+  }
+
+  .id_hadiah {
+    font-size: 30px;
+    font-weight: bold;
+  }
+
+  .pemenang {
+    font-weight: bold;
+    font-size: 24px;
+    color: #4caf50;
+  }
+}
 * {
   font-family: Arial, Helvetica, sans-serif;
   margin: 0;
@@ -60,20 +124,6 @@ body {
   height: fit-content;
 }
 
-button {
-  background-color: #4caf50; /* Green */
-  border: none;
-  padding: 10px;
-  color: white;
-  border-radius: 5px;
-  padding: 15px 32px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 16px;
-  margin-left: 5px;
-  margin-right: 5px;
-}
 .container {
   margin-top: 10px;
   margin-bottom: 20px;
@@ -102,25 +152,12 @@ button {
 }
 .prize-box p {
   background-color: white;
-  font-size: 10px;
 }
 
 #upload {
   visibility: hidden;
 }
 
-.pemenang {
-  font-weight: bold;
-  font-size: 13px;
-  color: #4caf50;
-}
-.parent {
-  width: 100vw;
-  height: 100vh;
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  grid-template-rows: repeat(8, 1fr);
-  grid-column-gap: 0px;
-  grid-row-gap: 0px;
-  background-color: #4caf50;
+#eliminasi {
+  background-color: #FFB72B;
 }
