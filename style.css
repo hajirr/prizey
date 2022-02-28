@@ -26,6 +26,11 @@
     font-size: 16px;
     margin: 5px;
   }
+  
+  img {
+    width: 7vw;
+    background-color: white;
+  }
 
   .id_hadiah {
     font-size: 22px;
@@ -54,7 +59,7 @@
     border-radius: 10px;
   }
   img {
-    width: 4vw;
+    width: 15vw;
     background-color: white;
   }
   .nama_pt {
